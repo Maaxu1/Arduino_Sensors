@@ -1,6 +1,8 @@
 #include "globals.h"
 #include "proyecto1.h"
 #include "proyecto2.h"
+#include "proyecto5.h"
+
 
 void setup() {
   lcd.init();
@@ -11,6 +13,7 @@ void setup() {
 
   proyecto1_setup();
   proyecto2_setup();
+  proyecto5_setup();
 
   Serial.begin(9600);
 }
@@ -22,6 +25,7 @@ void loop() {
   if (inMenu) {
     proyecto1_reset();
     proyecto2_reset();
+    proyecto5_reset();
 
     // Navegación con el joystick
     if (yValue < 400) {
@@ -108,5 +112,5 @@ void sensor4() {
   // proyecto4();
 }
 void sensor5() {
-  // proyecto5();
+  proyecto5();
 }

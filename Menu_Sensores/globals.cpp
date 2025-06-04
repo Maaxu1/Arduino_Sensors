@@ -28,6 +28,19 @@ const int pinLed = 4;
 const int pinBuzzer = 5; 
 const int Shock = 11;    
 
+
+// Declaraciones del proyecto 3
+
+
+// Declaraciones del proyecto 4
+
+// Declaraciones del proyecto 5
+const int pinVibracion = 13;
+const int pinLedV[4] = {11, 10, 9, 8};
+
+int estadoActualV;
+int estadoAnteriorV = LOW;
+
 // Menú
 const int numMenuItems = 5;
 String menuItems[numMenuItems] = {
