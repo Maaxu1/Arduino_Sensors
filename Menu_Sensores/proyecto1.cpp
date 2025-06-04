@@ -80,6 +80,8 @@ void proyecto1() {
 }
 
 void proyecto1_reset() {
+  digitalWrite(DHpin, LOW);
+  digitalWrite(servoPin, LOW);
   digitalWrite(ledv, LOW);
   digitalWrite(leda, LOW);
   digitalWrite(ledr, LOW);
