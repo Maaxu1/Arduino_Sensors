@@ -35,6 +35,19 @@ extern const int pinLed;
 extern const int pinBuzzer; 
 extern const int Shock;     
 
+// Declaraciones del proyecto 3
+
+
+// Declaraciones del proyecto 4
+
+
+// Declaraciones del proyecto 5
+extern const int pinVibracion;
+extern const int pinLedV[4];
+
+extern int estadoActualV;
+extern int estadoAnteriorV;
+
 // Menú
 extern const int numMenuItems;
 extern String menuItems[];
