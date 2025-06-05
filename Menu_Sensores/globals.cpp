@@ -14,7 +14,7 @@ const int ledv = 3;
 const int leda = 4;
 const int ledr = 5;
 const int servoPin = 7;
-
+const int Shock = 11;     //sensor de choque 
 bool proyectoActivo  = false;
 
 DHT dht(DHpin, DHTTYPE);
