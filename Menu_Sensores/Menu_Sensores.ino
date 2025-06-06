@@ -3,6 +3,7 @@
 #include "proyecto2.h"
 #include "proyecto5.h"
 
+bool transmision_iniciada;
 
 void setup() {
   lcd.init();
@@ -14,6 +15,8 @@ void setup() {
   proyecto1_setup();
   proyecto2_setup();
   proyecto5_setup();
+
+  Wire.begin(); // Inicia como maestro
 
   Serial.begin(9600);
 }
@@ -74,6 +77,13 @@ void loop() {
     buttonPressed = true;
     inMenu = true;
     proyectoActivo  = false; // Reiniciar bandera al volver
+
+    Wire.beginTransmission(8);
+    Wire.write(10); // Comando para detener
+    Wire.endTransmission();
+
+    transmision_iniciada = false;
+
     showMenu();
   }
 }
@@ -101,15 +111,71 @@ void sensor1() {
 }
 
 void sensor2() {
-  proyecto2();
+  if (transmision_iniciada == false) {
+    Wire.beginTransmission(8);
+    Wire.write(2); // Comando para Proyecto 3
+    Wire.endTransmission();
+    transmision_iniciada = true;
+    
+
+    Serial.print("Distancia: ");
+
+  } else {
+    Wire.requestFrom(8, 10); // Pide 1 byte al esclavo 8
+
+    if (Wire.available()) {
+      byte data = Wire.read(); // Lee el byte
+
+      Serial.print(data);
+      Serial.println(" cm");
+
+      delay(1000);
+
+      Serial.print("         ");
+    }
+  }
 }
 
 void sensor3() {
-  // proyecto3();
+  if (transmision_iniciada == false) {
+    Wire.beginTransmission(8);
+    Wire.write(3); // Comando para Proyecto 3
+    Wire.endTransmission();
+    transmision_iniciada = true;
+  } else {
+    Wire.requestFrom(8, 10); // Pide 1 byte al esclavo 8
+
+    if (Wire.available()) {
+      byte data = Wire.read(); // Lee el byte
+
+      lcd.setCursor(0, 1);
+      lcd.print("Golpe detectado");
+
+      lcd.setCursor(0, 1);
+      lcd.print("                  ");
+    }
+  }
 }
 
 void sensor4() {
-  // proyecto4();
+    if (transmision_iniciada == false) {
+    Wire.beginTransmission(8);
+    Wire.write(4); // Comando para Proyecto 4
+    Wire.endTransmission();
+    transmision_iniciada = true;
+  } else {
+    Wire.requestFrom(8, 10); // Pide 1 byte al esclavo 8
+
+    if (Wire.available()) {
+      byte data = Wire.read(); // Lee el byte
+
+      lcd.setCursor(0, 1);
+      lcd.print("Golpe detectado");
+
+      lcd.setCursor(0, 1);
+      lcd.print("                     ");
+    }
+  }
 }
 void sensor5() {
   proyecto5();
