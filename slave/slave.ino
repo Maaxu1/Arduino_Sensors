@@ -36,7 +36,14 @@ void loop() {
     proyecto4Reset();
     orden = 0;
   }
-  if (orden == 11) valorSensores = bluetooth();
+  if (orden == 11) {
+    char valor = bluetooth();
+    if (valor != 0) {  // Solo si se recibió algo
+      valorSensores = (int)valor;  // Guarda como entero (para enviar 2 bytes)
+      Serial.print("BT recibido: ");
+      Serial.println(valor);  // Debug
+    }
+  }
   
 }
 

@@ -6,10 +6,10 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);
 bool transmision_iniciada;
 
 void setup() {
-  Wire.begin(); // Inicia como maestro
+  Wire.begin(); // Maestro I2C
   lcd.init();
   lcd.backlight();
-  
+
   pinMode(buttonPin, INPUT_PULLUP);
   showMenu();
 
@@ -23,35 +23,24 @@ void loop() {
   int yValue = analogRead(yAxisPin);
   bool currentButton = digitalRead(buttonPin) == LOW;
 
-  Wire.requestFrom(8, 2);
+  // Leer 1 byte del esclavo
+  Wire.requestFrom(8, 1);
+  if (Wire.available()) {
+    char recibido = Wire.read();
 
-  if (Wire.available() >= 2) {
-    byte highByte = Wire.read();
-    byte lowByte = Wire.read();
-
-    char recibido = (highByte << 8) | lowByte;
-    Serial.println(recibido);
-
-    // Selección de proyecto (a-e o A-E)
     if (recibido >= 'a' && recibido <= 'e') {
-      respuestaBluetooth = recibido - 'a';
-      menuIndex = respuestaBluetooth;
+      menuIndex = recibido - 'a';
       confirmacionBluetooth = true;
     }
     else if (recibido >= 'A' && recibido <= 'E') {
-      respuestaBluetooth = recibido - 'A';
-      menuIndex = respuestaBluetooth;
+      menuIndex = recibido - 'A';
       confirmacionBluetooth = true;
     }
-
-    // Salida de proyecto (r o R)
     else if (recibido == 'r' || recibido == 'R') {
-      if (!inMenu) {  // Solo si estás en un proyecto
-        confirmacionBluetooth = true; // Activar salida
+      if (!inMenu) {
+        confirmacionBluetooth = true; // Regresa al menú
       }
     }
-
-    Serial.println("Hay comunicacion");
   }
 
   if (inMenu) {
@@ -59,7 +48,7 @@ void loop() {
     proyecto1Reset();
     proyecto5Reset();
 
-    // Navegación con el joystick
+    // Joystick navegación
     if (yValue < 400) {
       menuIndex = (menuIndex - 1 + numMenuItems) % numMenuItems;
       showMenu();
@@ -74,6 +63,7 @@ void loop() {
     if ((currentButton && !buttonPressed) || confirmacionBluetooth == true) {
       buttonPressed = true;
       inMenu = false;
+      confirmacionBluetooth = false;
       switch (menuIndex) {
         case 0: sensor1(); break;
         case 1: sensor2(); break;
@@ -82,41 +72,42 @@ void loop() {
         case 4: sensor5(); break;
       }
     }
-} else {
-  if (!proyectoActivo) {
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Iniciando proyecto ");
-    lcd.print(menuIndex + 1); // Para que muestre del 1 al 5
-    lcd.setCursor(0, 3);
-    lcd.print("Presiona para volver");
-    proyectoActivo  = true;
+
+  } else {
+    if (!proyectoActivo) {
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Iniciando proyecto ");
+      lcd.print(menuIndex + 1);
+      lcd.setCursor(0, 3);
+      lcd.print("Presiona para volver");
+      proyectoActivo = true;
+    }
+
+    switch (menuIndex) {
+      case 0: sensor1(); break;
+      case 1: sensor2(); break;
+      case 2: sensor3(); break;
+      case 3: sensor4(); break;
+      case 4: sensor5(); break;
+    }
+
+    // Volver al menú
+    if ((currentButton && !buttonPressed) || confirmacionBluetooth == true) {
+      buttonPressed = true;
+      inMenu = true;
+      proyectoActivo = false;
+      confirmacionBluetooth = false;
+
+      Wire.beginTransmission(8);
+      Wire.write(10); // Detener
+      Wire.endTransmission();
+
+      transmision_iniciada = false;
+
+      showMenu();
+    }
   }
-
-  switch (menuIndex) {
-    case 0: sensor1(); break;
-    case 1: sensor2(); break;
-    case 2: sensor3(); break;
-    case 3: sensor4(); break;
-    case 4: sensor5(); break;
-  }
-
-  // Esperar pulsación para regresar al menú
-  if ((currentButton && !buttonPressed) || confirmacionBluetooth == true) {
-    buttonPressed = true;
-    inMenu = true;
-    proyectoActivo = false; // Reiniciar bandera al volver
-    confirmacionBluetooth = false;
-
-    Wire.beginTransmission(8);
-    Wire.write(10); // Comando para detener
-    Wire.endTransmission();
-
-    transmision_iniciada = false;
-
-    showMenu();
-  }
-}
 
   if (!currentButton) {
     buttonPressed = false;
